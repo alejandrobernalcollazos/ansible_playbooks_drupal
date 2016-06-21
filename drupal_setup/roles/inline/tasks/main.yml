@@ -1,0 +1,26 @@
+---
+
+- name: Add DB info
+  lineinfile: 
+    dest: /var/www/{{ domain }}/sites/default/settings.php
+    regexp: ^\$databases = array\(\)\;
+    insertafter: ^\$databases = array\(\)\;
+    state: present
+    line: "{{ item.line }}"    
+  with_items:
+      - { line: "$databases = array (
+       'default' =>
+         array ( 
+          'default' =>
+            array (
+             'database' => '{{ db_name }}',
+             'username' => '{{ db_user }}',
+             'password' => '{{ db_password }}',
+             'host' => '{{ db_host }}',
+             'port' => '',
+             'driver' => 'mysql',
+             'prefix' => '',
+            ),
+         ),
+      );" }
+  

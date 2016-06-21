@@ -1,0 +1,53 @@
+---
+
+- name: Install git
+  apt: name=git state=latest
+
+- name: Clone Drupal
+  git: >
+    repo=https://github.com/alejandrobernalcollazos/school_drupal_template.git
+    dest=/var/www/{{ domain }}
+    update=no
+
+- name: Create settings.php
+  command: cp /var/www/{{ domain }}/sites/default/default.settings.php /var/www/{{ domain }}/sites/default/settings.php
+
+- name: Update permissions of settings.php
+  file: path=/var/www/{{ domain }}/sites/default/settings.php mode=777
+
+- name: Update permissions of files directory
+  file: >
+    path=/var/www/{{ domain }}/sites/default/files
+    mode=777
+    state=directory
+    recurse=yes
+
+- name: Add base_url in settings.php
+  lineinfile: dest=/var/www/{{ domain }}/sites/default/settings.php regexp="^# \$base_url *" line="$base_url = 'http://www.comodoycerca.com';"
+
+- name: Add cookie_domain in settings.php
+  lineinfile: dest=/var/www/{{ domain }}/sites/default/settings.php regexp="^# \$cookie_domain *" line="$cookie_domain = '.comodoycerca.com'";
+
+- name: Add DB info
+  lineinfile:
+    dest: /var/www/{{ domain }}/sites/default/settings.php
+    regexp: ^\$databases = array\(\)\;
+    insertafter: ^\$databases = array\(\)\;
+    state: present
+    line: "{{ item.line }}"
+  with_items:
+      - { line: "$databases = array (
+       'default' =>
+         array (
+          'default' =>
+            array (
+             'database' => '{{ db_name }}',
+             'username' => '{{ db_user }}',
+             'password' => '{{ db_password }}',
+             'host' => '{{ db_host }}',
+             'port' => '',
+             'driver' => 'mysql',
+             'prefix' => '',
+            ),
+         ),
+      );" } 

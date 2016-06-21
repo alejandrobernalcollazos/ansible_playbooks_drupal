@@ -1,0 +1,19 @@
+---
+
+- hosts: drupal_hosts
+
+  sudo: yes
+
+  vars:
+    - db_name: drupal
+    - db_user: drupal_user
+    - db_password: 58145Abc!
+    - http_port: 80
+    - domain: comodoycerca.com
+
+  roles:
+    - update
+    - php
+    - mysql
+    - drupal
+    - apache
